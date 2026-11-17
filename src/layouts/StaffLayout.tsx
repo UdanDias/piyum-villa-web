@@ -8,9 +8,11 @@ const links: { path: string; name: string; symbol: string; roles: Role[] }[] = [
   { path: '/staff/reservations', name: 'Reservations', symbol: '▤', roles: ['ADMIN', 'MANAGER', 'RECEPTIONIST', 'ACCOUNTANT'] },
   { path: '/staff/rooms', name: 'Rooms & housekeeping', symbol: '▦', roles: ['ADMIN', 'MANAGER', 'RECEPTIONIST', 'HOUSEKEEPING'] },
   { path: '/staff/customers', name: 'Customers', symbol: '♙', roles: ['ADMIN', 'MANAGER', 'RECEPTIONIST'] },
-  { path: '/staff/payments', name: 'Cash payments', symbol: '◉', roles: ['ADMIN', 'MANAGER', 'RECEPTIONIST', 'ACCOUNTANT'] },
+  { path: '/staff/payments', name: 'Cash payments', symbol: '◉', roles: ['ADMIN', 'MANAGER', 'ACCOUNTANT'] },
   { path: '/staff/reviews', name: 'Guest reviews', symbol: '☆', roles: ['ADMIN', 'MANAGER'] },
   { path: '/staff/settings', name: 'Hotel details', symbol: '⚙', roles: ['ADMIN', 'MANAGER'] },
+  { path: '/staff/setup', name: 'Inventory setup', symbol: '▦', roles: ['ADMIN'] },
+  { path: '/staff/media', name: 'Hotel & room photos', symbol: '▧', roles: ['ADMIN', 'MANAGER'] },
   { path: '/staff/users', name: 'Users & access', symbol: '♧', roles: ['ADMIN'] },
   { path: '/staff/audit', name: 'Activity log', symbol: '☷', roles: ['ADMIN', 'MANAGER'] },
 ];

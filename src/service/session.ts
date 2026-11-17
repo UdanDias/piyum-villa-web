@@ -15,3 +15,5 @@ export function currentUser() {
 }
 export function requireUser() { const user = currentUser(); if (!user) throw new Error('Please sign in to continue.'); return user; }
 export function requireRole(...roles: Role[]) { const user = requireUser(); if (!roles.includes(user.role)) throw new Error('You do not have permission for this action.'); return user; }
+
+export function updateSessionUser(user: AuthSession['user']) { if (session) session = { ...session, user }; window.dispatchEvent(new Event('piyum:data')); }

@@ -1,3 +1,4 @@
+
 import { appConfig } from '../config/appConfig';
 let accessToken: string | null = null;
 export const setAccessToken = (value: string | null) => { accessToken = value; };
@@ -25,4 +26,14 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
 }
 export function requireMock(feature: string): void {
   if (!appConfig.mock) throw new Error(`${feature} needs the new backend API contract. No mock data was used. See BACKEND_INTEGRATION.md.`);
+}
+
+export async function change<T>(path: string, body?: unknown, method = 'POST', headers?: HeadersInit): Promise<T> {
+ const value = await request<T>(path, { method, headers, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+ window.dispatchEvent(new Event('piyum:data')); return value;
+}
+export function guestHeaders(): HeadersInit {
+ const key = 'piyum-guest-access'; let value = sessionStorage.getItem(key);
+ if (!value) { value = crypto.randomUUID() + crypto.randomUUID(); sessionStorage.setItem(key, value); }
+ return { 'X-Booking-Token': value };
 }

@@ -1,3 +1,5 @@
+import { StaffSetupPage } from './pages/StaffSetupPage';
+import { StaffMediaPage } from './pages/StaffMediaPage';
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeProvider';
 import { AuthProvider } from './context/AuthProvider';
@@ -38,13 +40,13 @@ export default function App() {
     <Route element={<RouteGuard roles={['ADMIN', 'MANAGER', 'RECEPTIONIST', 'HOUSEKEEPING', 'ACCOUNTANT']} />}>
       <Route path="staff" element={<StaffLayout />}>
         <Route index element={<StaffDashboard />} />
-        <Route element={<RouteGuard roles={[...ops, 'ACCOUNTANT']} />}><Route path="reservations" element={<StaffReservationsPage />} /><Route path="booking/:id" element={<BookingDetailsPage />} /><Route path="payments" element={<StaffPaymentsPage />} /></Route>
+        <Route element={<RouteGuard roles={[...ops, 'ACCOUNTANT']} />}><Route path="reservations" element={<StaffReservationsPage />} /><Route path="booking/:id" element={<BookingDetailsPage />} /></Route>
         <Route element={<RouteGuard roles={[...ops, 'HOUSEKEEPING']} />}><Route path="rooms" element={<StaffRoomsPage />} /></Route>
         <Route element={<RouteGuard roles={[...ops]} />}><Route path="customers" element={<StaffCustomersPage />} /></Route>
-        <Route element={<RouteGuard roles={['ADMIN', 'MANAGER']} />}><Route path="reviews" element={<StaffReviewsPage />} /><Route path="settings" element={<StaffSettingsPage />} /><Route path="audit" element={<StaffAuditPage />} /></Route>
-        <Route element={<RouteGuard roles={['ADMIN']} />}><Route path="users" element={<StaffUsersPage />} /></Route>
+        <Route element={<RouteGuard roles={['ADMIN', 'MANAGER']} />}><Route path="media" element={<StaffMediaPage />} /><Route path="reviews" element={<StaffReviewsPage />} /><Route path="settings" element={<StaffSettingsPage />} /><Route path="audit" element={<StaffAuditPage />} /></Route>
+        <Route element={<RouteGuard roles={['ADMIN']} />}><Route path="setup" element={<StaffSetupPage />} /><Route path="users" element={<StaffUsersPage />} /></Route>
       </Route>
     </Route>
-    <Route path="owner/*" element={<Navigate to="/staff" replace />} />
+    <Route element={<RouteGuard roles={['ADMIN', 'MANAGER', 'ACCOUNTANT']} />}><Route path="staff/payments" element={<StaffLayout />}><Route index element={<StaffPaymentsPage />} /></Route></Route><Route path="owner/*" element={<Navigate to="/staff" replace />} />
   </Routes></BrowserRouter></BookingProvider></AuthProvider></ThemeProvider></ErrorBoundary>;
 }
