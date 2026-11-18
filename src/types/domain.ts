@@ -5,11 +5,12 @@ export type BookingStatus = 'confirmed' | 'checked-in' | 'completed' | 'cancelle
 export interface User { id: number; name: string; username: string; email: string; phone: string; role: Role }
 export interface AuthSession { token: string; expiresAt: number; user: User }
 export interface SignUpRequest { name: string; username: string; email: string; phone: string; password: string }
-export interface RoomType { databaseId?: number; id: RoomCategory; name: string; description: string; nightlyRate: number; area: number; buildingStyle: string; kitchen: boolean; images: string[]; amenities: string[] }
+export interface RoomType { maxAdults?: number; maxChildren?: number; maxOccupancy?: number; databaseId?: number; id: RoomCategory; name: string; description: string; nightlyRate: number; area: number; buildingStyle: string; kitchen: boolean; images: string[]; amenities: string[] }
 export interface Room { id: number; number: string; category: RoomCategory; status: 'available' | 'servicing'; housekeeping: 'clean' | 'dirty'; location: string }
-export interface Accommodation { id: MealPlan; name: string; description: string; supplement: number }
+export interface Accommodation { id: MealPlan; name: string; description: string; adultSupplement: number; childSupplement: number }
 export interface SearchCriteria { checkIn: string; checkOut: string; rooms: number }
-export interface BookingDraft extends SearchCriteria { suite: number; deluxe: number; adults: number; children: number; mealPlan: MealPlan; selectedRoomIds: number[]; selectRooms: boolean }
+export interface RoomAllocation { category: RoomCategory; adults: number; children: number }
+export interface BookingDraft extends SearchCriteria { allocations: RoomAllocation[]; suite: number; deluxe: number; adults: number; children: number; mealPlan: MealPlan; selectedRoomIds: number[]; selectRooms: boolean }
 export interface GuestDetails { name: string; email: string; phone: string; documentType: 'NIC' | 'PASSPORT'; documentNumber: string; notes: string }
 export interface QuoteLine { label: string; amount: number }
 export interface Quote { nights: number; lines: QuoteLine[]; total: number; currency: string; cancellationDeadline: string }

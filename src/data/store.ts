@@ -4,7 +4,7 @@ import { appConfig } from '../config/appConfig';
 import { addDays, today } from '../utils/format';
 interface StoredUser extends User { passwordHash?: string }
 export interface DemoStore { version: 2; users: StoredUser[]; rooms: Room[]; bookings: Booking[]; reviews: Review[]; payments: Payment[]; audit: AuditEntry[]; hotel: HotelProfile }
-const key = 'piyum-villa-demo-v2';
+const key = 'piyum-villa-demo-v3';
 const demoUsers: StoredUser[] = [
   { id: 1, name: 'Alex Morgan', username: 'alex', email: 'guest@demo.piyumvilla.test', phone: '0770000001', role: 'GUEST' },
   { id: 2, name: 'Hotel Owner', username: 'owner', email: 'owner@demo.piyumvilla.test', phone: '0770000002', role: 'ADMIN' },
@@ -16,9 +16,9 @@ const demoUsers: StoredUser[] = [
 function seed(): DemoStore {
   const start = addDays(today(), 2); const end = addDays(start, 3);
   const common = { userId: 1, guest: { name: 'Alex Morgan', email: demoUsers[0].email, phone: demoUsers[0].phone, documentType: 'PASSPORT' as const, documentLastFour: '1234', notes: '' }, createdAt: new Date().toISOString(), paid: 0 };
-  const upcoming: Booking = { ...common, id: 'sample-upcoming', reference: 'PV-DEMO-1001', idempotencyKey: 'sample-1', status: 'confirmed', roomIds: [3], draft: { checkIn: start, checkOut: end, rooms: 1, suite: 1, deluxe: 0, adults: 2, children: 0, mealPlan: 'room-only', selectedRoomIds: [3], selectRooms: true }, quote: { nights: 3, lines: [{ label: 'Suite Double Room · 1 room × 3 nights', amount: 54000 }], total: 54000, currency: 'LKR', cancellationDeadline: `${start}T00:00:00+05:30` } };
+  const upcoming: Booking = { ...common, id: 'sample-upcoming', reference: 'PV-DEMO-1001', idempotencyKey: 'sample-1', status: 'confirmed', roomIds: [9], draft: { checkIn: start, checkOut: end, rooms: 1, suite: 1, deluxe: 0, adults: 2, children: 0, mealPlan: 'room-only', selectedRoomIds: [9], selectRooms: true, allocations: [{category: 'suite', adults: 2, children: 0}] }, quote: { nights: 3, lines: [{ label: 'Suite Double Room · 1 room × 3 nights', amount: 54000 }], total: 54000, currency: 'LKR', cancellationDeadline: `${start}T00:00:00+05:30` } };
   const pastStart = addDays(today(), -14), pastEnd = addDays(today(), -12);
-  const completed: Booking = { ...upcoming, id: 'sample-completed', reference: 'PV-DEMO-1000', idempotencyKey: 'sample-0', status: 'completed', roomIds: [13], paid: 28000, draft: { ...upcoming.draft, checkIn: pastStart, checkOut: pastEnd, suite: 0, deluxe: 1, selectedRoomIds: [13] }, quote: { nights: 2, lines: [{ label: 'Deluxe Double Room · 1 room × 2 nights', amount: 28000 }], total: 28000, currency: 'LKR', cancellationDeadline: `${pastStart}T00:00:00+05:30` } };
+  const completed: Booking = { ...upcoming, id: 'sample-completed', reference: 'PV-DEMO-1000', idempotencyKey: 'sample-0', status: 'completed', roomIds: [3], paid: 28000, draft: { ...upcoming.draft, checkIn: pastStart, checkOut: pastEnd, suite: 0, deluxe: 1, selectedRoomIds: [3], allocations: [{category: 'deluxe', adults: 2, children: 0}] }, quote: { nights: 2, lines: [{ label: 'Deluxe Double Room · 1 room × 2 nights', amount: 28000 }], total: 28000, currency: 'LKR', cancellationDeadline: `${pastStart}T00:00:00+05:30` } };
   return { version: 2, users: demoUsers, rooms: structuredClone(initialRooms), bookings: [upcoming, completed], reviews: [], payments: [], audit: [], hotel: { name: appConfig.hotelName, phone: appConfig.phone, address: appConfig.address, checkInWindow: '12:00–18:00', checkOutWindow: '08:00–11:00' } };
 }
 let memory: DemoStore | undefined;

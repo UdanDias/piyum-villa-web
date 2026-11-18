@@ -3,6 +3,7 @@ import { request, change, guestHeaders } from './apiClient';
 import type { Availability, Booking, BookingDraft, GuestDetails, Quote, SearchCriteria } from '../types/domain';
 import { readStore, mutate, uid, record, DemoStore } from '../data/store';
 import { roomTypes, accommodations } from '../data/catalogue';
+import { allocationErrors } from '../utils/occupancy';
 import { validDate, nightsBetween, today } from '../utils/format';
 import { requireMock } from './apiClient';
 import { currentUser, requireUser, requireRole } from './session';
@@ -12,7 +13,7 @@ function dateCheck(search: SearchCriteria) {
   if (search.checkIn < today()) throw new Error('Check-in cannot be in the past.');
   const nights = nightsBetween(search.checkIn, search.checkOut);
   if (nights < 1 || nights > 90) throw new Error('Choose a stay between 1 and 90 nights.');
-  if (!Number.isInteger(search.rooms) || search.rooms < 1 || search.rooms > 18) throw new Error('Choose between 1 and 18 rooms in this demo inventory.');
+  if (!Number.isInteger(search.rooms) || search.rooms < 1 || search.rooms > 6) throw new Error('Choose between 1 and 6 rooms.');
 }
 function available(data: DemoStore, search: SearchCriteria): Availability {
   dateCheck(search);
@@ -23,10 +24,12 @@ function available(data: DemoStore, search: SearchCriteria): Availability {
 function quote(data: DemoStore, draft: BookingDraft): Quote {
   dateCheck(draft);
   if (![draft.suite, draft.deluxe, draft.adults, draft.children].every(Number.isInteger) || draft.suite < 0 || draft.deluxe < 0 || draft.suite + draft.deluxe !== draft.rooms) throw new Error('Suite and Deluxe quantities must add up to your room count.');
-  if (draft.adults < draft.rooms || draft.adults > 2 * draft.rooms || draft.children < 0 || draft.children > draft.rooms) throw new Error('Each room needs at least 1 adult and allows up to 2 adults and 1 child.');
+  if (!draft.allocations || draft.allocations.length !== draft.rooms || allocationErrors(draft.allocations).some(Boolean)) throw new Error('Each room needs 1–2 adults and allows at most 3 guests.');
+  if(draft.allocations.reduce((n,r)=>n+r.adults,0)!==draft.adults || draft.allocations.reduce((n,r)=>n+r.children,0)!==draft.children || draft.allocations.filter(r=>r.category==='suite').length!==draft.suite) throw new Error('Guest counts must match each room.');
   const availability = available(data, draft);
   if (draft.suite > availability.suite || draft.deluxe > availability.deluxe) throw new Error('Some rooms are no longer available for these dates. Please update your selection.');
   if (draft.selectRooms) {
+    if(draft.selectedRoomIds.some((id,i)=>availability.rooms.find(r=>r.id===id)?.category!==draft.allocations[i]?.category)) throw new Error('Assign a room of the selected category to each guest allocation.');
     if (new Set(draft.selectedRoomIds).size !== draft.rooms) throw new Error('Select exactly the requested number of rooms, or skip selection.');
     const selected = availability.rooms.filter(r => draft.selectedRoomIds.includes(r.id));
     if (selected.length !== draft.rooms || selected.filter(r => r.category === 'suite').length !== draft.suite || selected.filter(r => r.category === 'deluxe').length !== draft.deluxe) throw new Error('Selected room numbers no longer match your available room categories.');
@@ -34,7 +37,10 @@ function quote(data: DemoStore, draft: BookingDraft): Quote {
   const plan = accommodations.find(a => a.id === draft.mealPlan); if (!plan) throw new Error('Select a valid meal plan.');
   const nights = nightsBetween(draft.checkIn, draft.checkOut);
   const lines = roomTypes.filter(t => draft[t.id] > 0).map(t => ({ label: `${t.name} · ${draft[t.id]} room(s) × ${nights} night(s)`, amount: t.nightlyRate * draft[t.id] * nights }));
-  if (plan.supplement) lines.push({ label: `${plan.name} · ${draft.rooms} room(s) × ${nights} night(s)`, amount: plan.supplement * nights * draft.rooms });
+  if (plan.id !== 'room-only') {
+    if(draft.adults) lines.push({label:`${plan.name} · ${draft.adults} adults × ${plan.adultSupplement} × ${nights} nights`,amount:plan.adultSupplement*draft.adults*nights});
+    if(draft.children) lines.push({label:`${plan.name} · ${draft.children} children × ${plan.childSupplement} × ${nights} nights`,amount:plan.childSupplement*draft.children*nights});
+  }
   return { nights, lines, total: lines.reduce((sum, l) => sum + l.amount, 0), currency: 'LKR', cancellationDeadline: `${draft.checkIn}T00:00:00+05:30` };
 }
 function canRead(booking: Booking) {
@@ -54,7 +60,8 @@ export const ReservationService = {
       if (previous) { if (!canRead(previous)) throw new Error('This booking request cannot be reused.'); return previous; }
       const price = quote(data, draft); if (price.total !== expectedTotal) throw new Error('The price changed. Please review the updated quote.');
       const free = available(data, draft);
-      const assigned = draft.selectRooms ? [...draft.selectedRoomIds] : [...free.rooms.filter(r => r.category === 'suite').slice(0, draft.suite), ...free.rooms.filter(r => r.category === 'deluxe').slice(0, draft.deluxe)].map(r => r.id);
+      const pool=[...free.rooms];
+      const assigned = draft.selectRooms ? [...draft.selectedRoomIds] : draft.allocations.map(a=>{const i=pool.findIndex(r=>r.category===a.category); return pool.splice(i,1)[0].id;});
       const { documentNumber, ...details } = guest;
       const item: Booking = { id: uid(), reference: `PV-${uid().slice(0, 8).toUpperCase()}`, userId: user?.role === 'GUEST' ? user.id : null, draft: structuredClone(draft), roomIds: assigned, guest: { ...details, email: details.email.trim().toLowerCase(), documentLastFour: documentNumber.slice(-4) }, quote: price, status: 'confirmed', createdAt: new Date().toISOString(), idempotencyKey, paid: 0 };
       data.bookings.unshift(item); record(data, `Created reservation ${item.reference}`, user?.id ?? null); guestKeys.add(item.id); return item;
