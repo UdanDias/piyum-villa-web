@@ -45,14 +45,14 @@ function quote(data: DemoStore, draft: BookingDraft): Quote {
 }
 function canRead(booking: Booking) {
   const user = currentUser();
-  return guestKeys.has(booking.id) || (!!user && (booking.userId === user.id || ['ADMIN', 'MANAGER', 'RECEPTIONIST', 'ACCOUNTANT'].includes(user.role)));
+  return guestKeys.has(booking.id) || (!!user && (booking.userId === user.id || ['ADMIN', 'MANAGER', 'RECEPTIONIST'].includes(user.role)));
 }
 export const ReservationService = {
   async availability(search: SearchCriteria) { if (!appConfig.mock) return request<Availability>('/web/public/availability', { method: 'POST', body: JSON.stringify({ checkIn: search.checkIn, checkOut: search.checkOut, rooms: search.rooms }) }); requireMock('Availability'); return available(readStore(), search); },
   async quote(draft: BookingDraft) { if (!appConfig.mock) return request<Quote>('/web/public/quote', { method: 'POST', body: JSON.stringify(draft) }); requireMock('Booking quote'); return quote(readStore(), draft); },
   async create(draft: BookingDraft, guest: GuestDetails, idempotencyKey: string, expectedTotal: number): Promise<Booking> {
     if (!appConfig.mock) return change<Booking>('/web/public/bookings', { draft, guest: { ...guest, documentNumber: '' }, idempotencyKey, expectedTotal }, 'POST', guestHeaders()); requireMock('Customer booking');
-    if (!guest.name.trim() || !/^\S+@\S+\.\S+$/.test(guest.email.trim()) || guest.phone.trim().length < 7 || guest.documentNumber.trim().length < 5) throw new Error('Enter a name, valid email, phone and sample identity-document number.');
+    if (!guest.name.trim() || !/^\S+@\S+\.\S+$/.test(guest.email.trim()) || guest.phone.trim().length < 7) throw new Error('Enter a name, valid email, phone and sample identity-document number.');
     if (guest.notes.length > 1000 || guest.name.length > 150) throw new Error('Name or notes are too long.');
     const user = currentUser();
     const booking = await mutate(data => {
@@ -70,7 +70,7 @@ export const ReservationService = {
   },
   async get(id: string) { if (!appConfig.mock) return request<Booking>(`/web/public/bookings/${id}`, { headers: guestHeaders() }); requireMock('Booking details'); const booking = readStore().bookings.find(b => b.id === id); if (!booking || !canRead(booking)) throw new Error('Booking unavailable. Sign in as its owner, or keep the original guest booking tab open.'); return booking; },
   async getMine() { if (!appConfig.mock) return request<Booking[]>('/web/bookings?mine=true'); requireMock('My bookings'); const user = requireUser(); return readStore().bookings.filter(b => b.userId === user.id); },
-  async getAll() { if (!appConfig.mock) return request<Booking[]>('/web/bookings?mine=false'); requireMock('Staff reservations'); requireRole('ADMIN', 'MANAGER', 'RECEPTIONIST', 'ACCOUNTANT'); return readStore().bookings; },
+  async getAll() { if (!appConfig.mock) return request<Booking[]>('/web/bookings?mine=false'); requireMock('Staff reservations'); requireRole('ADMIN', 'MANAGER', 'RECEPTIONIST'); return readStore().bookings; },
   async cancel(id: string) {
     if (!appConfig.mock) return change<Booking>(`/web/public/bookings/${id}/cancel`, undefined, 'PATCH', guestHeaders()); requireMock('Cancellation'); return mutate(data => { const booking = data.bookings.find(b => b.id === id); if (!booking || !canRead(booking)) throw new Error('Booking unavailable.');
       if (booking.status !== 'confirmed') throw new Error('Only confirmed bookings can be cancelled here.');
@@ -79,8 +79,8 @@ export const ReservationService = {
       booking.status = 'cancelled'; record(data, `Cancelled ${booking.reference}`, currentUser()?.id ?? null); return booking;
     });
   },
-  async changeStatus(id: string, status: 'checked-in' | 'completed') {
-    if (!appConfig.mock) return change<Booking>(`/web/bookings/${id}/${status}`, undefined, 'PATCH'); requireMock('Reservation status'); const actor = requireRole('ADMIN', 'MANAGER', 'RECEPTIONIST');
+  async changeStatus(id: string, status: 'checked-in' | 'completed', identity?: {documentType:string; documentNumber:string}) {
+    if (!appConfig.mock) return change<Booking>(`/web/bookings/${id}/${status}`, identity, 'PATCH'); requireMock('Reservation status'); const actor = requireRole('ADMIN', 'MANAGER', 'RECEPTIONIST');
     return mutate(data => { const b = data.bookings.find(item => item.id === id); if (!b) throw new Error('Booking not found.');
       if (status === 'checked-in') {
         if (b.status !== 'confirmed' || today() < b.draft.checkIn || today() >= b.draft.checkOut) throw new Error('Check-in is allowed only for a confirmed booking during its stay dates.');

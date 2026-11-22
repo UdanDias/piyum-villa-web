@@ -8,8 +8,8 @@
     <title>Piyum Villa | Stay in Surfers Paradise</title>
     <script>
       (function () {
-        var preference = 'system';
-        try { preference = localStorage.getItem('piyum-villa-theme') || 'system'; } catch (error) {}
+        var preference = 'light';
+        try { preference = localStorage.getItem('piyum-villa-theme') || 'light'; } catch (error) {}
         var dark = preference === 'dark' || (preference !== 'light' && preference !== 'dark' && window.matchMedia('(prefers-color-scheme: dark)').matches);
         document.documentElement.classList.toggle('dark', dark);
         document.documentElement.style.colorScheme = dark ? 'dark' : 'light';

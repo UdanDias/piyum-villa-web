@@ -11,9 +11,9 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 function readPreference(): ThemePreference {
   try {
     const value = localStorage.getItem(storageKey);
-    if (value === 'light' || value === 'dark') return value;
+    if (value === 'light' || value === 'dark' || value === 'system') return value;
   } catch { /* Theme still works when storage is unavailable. */ }
-  return 'system';
+  return 'light';
 }
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [preference, updatePreference] = useState<ThemePreference>(readPreference);

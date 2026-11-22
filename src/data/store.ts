@@ -11,7 +11,7 @@ const demoUsers: StoredUser[] = [
   { id: 3, name: 'Front Desk', username: 'reception', email: 'reception@demo.piyumvilla.test', phone: '0770000003', role: 'RECEPTIONIST' },
   { id: 4, name: 'Hotel Manager', username: 'manager', email: 'manager@demo.piyumvilla.test', phone: '0770000004', role: 'MANAGER' },
   { id: 5, name: 'Housekeeping', username: 'housekeeping', email: 'housekeeping@demo.piyumvilla.test', phone: '0770000005', role: 'HOUSEKEEPING' },
-  { id: 6, name: 'Accounts', username: 'accounts', email: 'accounts@demo.piyumvilla.test', phone: '0770000006', role: 'ACCOUNTANT' },
+  { id: 6, name: 'Accounts', username: 'accounts', email: 'accounts@demo.piyumvilla.test', phone: '0770000006', role: 'RECEPTIONIST' },
 ];
 function seed(): DemoStore {
   const start = addDays(today(), 2); const end = addDays(start, 3);

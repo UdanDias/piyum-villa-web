@@ -1,3 +1,4 @@
+import { phoneError } from '../utils/phone';
 import type { AuthSession, SignUpRequest, Role } from '../types/domain';
 import { appConfig } from '../config/appConfig';
 import { readStore, mutate } from '../data/store';
@@ -21,6 +22,7 @@ export const AuthService = {
     return activate({ token: `demo-${crypto.randomUUID()}`, expiresAt: Date.now() + 15 * 60 * 1000, user });
   },
   async signUp(input: SignUpRequest) {
+    const invalidPhone=phoneError(input.phone); if(invalidPhone)throw new Error(invalidPhone);
     if (!input.name.trim() || !input.username.trim() || !/^\S+@\S+\.\S+$/.test(input.email) || input.phone.trim().length < 7) throw new Error('Enter your name, username, valid email and phone number.');
     if (input.password.length < 12 || new TextEncoder().encode(input.password).length > 72) throw new Error('Use at least 12 characters and no more than 72 UTF-8 bytes for your password.');
     if (!appConfig.mock) {

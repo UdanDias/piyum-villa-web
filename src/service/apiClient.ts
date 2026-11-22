@@ -30,7 +30,7 @@ export function requireMock(feature: string): void {
 
 export async function change<T>(path: string, body?: unknown, method = 'POST', headers?: HeadersInit): Promise<T> {
  const value = await request<T>(path, { method, headers, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
- window.dispatchEvent(new Event('piyum:data')); return value;
+ window.dispatchEvent(new Event('piyum:data')); try { localStorage.setItem('piyum-data-revision',String(Date.now())); } catch {} return value;
 }
 export function guestHeaders(): HeadersInit {
  const key = 'piyum-guest-access'; let value = sessionStorage.getItem(key);

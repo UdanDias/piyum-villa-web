@@ -1,4 +1,4 @@
-export type Role = 'GUEST' | 'ADMIN' | 'MANAGER' | 'RECEPTIONIST' | 'ACCOUNTANT' | 'HOUSEKEEPING';
+export type Role = 'GUEST' | 'ADMIN' | 'MANAGER' | 'RECEPTIONIST' | 'HOUSEKEEPING';
 export type RoomCategory = 'suite' | 'deluxe';
 export type MealPlan = 'room-only' | 'bb' | 'half-board' | 'full-board';
 export type BookingStatus = 'confirmed' | 'checked-in' | 'completed' | 'cancelled';
@@ -14,7 +14,7 @@ export interface BookingDraft extends SearchCriteria { allocations: RoomAllocati
 export interface GuestDetails { name: string; email: string; phone: string; documentType: 'NIC' | 'PASSPORT'; documentNumber: string; notes: string }
 export interface QuoteLine { label: string; amount: number }
 export interface Quote { nights: number; lines: QuoteLine[]; total: number; currency: string; cancellationDeadline: string }
-export interface Booking { roomNumbers?: string[]; id: string; reference: string; userId: number | null; draft: BookingDraft; roomIds: number[]; guest: Omit<GuestDetails, 'documentNumber'> & { documentLastFour: string }; quote: Quote; status: BookingStatus; createdAt: string; idempotencyKey: string; paid: number }
+export interface Booking { checkInIdentity?: { documentType: string; documentNumber: string }; roomNumbers?: string[]; id: string; reference: string; userId: number | null; draft: BookingDraft; roomIds: number[]; guest: Omit<GuestDetails, 'documentNumber'> & { documentLastFour: string }; quote: Quote; status: BookingStatus; createdAt: string; idempotencyKey: string; paid: number }
 export interface Availability { rooms: Room[]; suite: number; deluxe: number; total: number }
 export interface Review { id: string; bookingId: string; userId: number; author: string; rating: number; title: string; comment: string; status: 'pending' | 'approved' | 'rejected'; createdAt: string }
 export interface Payment { id: string; bookingId: string; amount: number; method: 'cash'; createdAt: string; actorId: number }
