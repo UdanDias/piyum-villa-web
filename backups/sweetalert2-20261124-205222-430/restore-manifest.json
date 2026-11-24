@@ -1,0 +1,106 @@
+﻿[
+    {
+        "path":  "src/components/AvailabilitySearch.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/components/ErrorBoundary.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/components/GuestRooms.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/components/MealRateEditor.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/components/UI.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/context/AuthProvider.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/hooks/useNoticeState.ts",
+        "existed":  false
+    },
+    {
+        "path":  "src/hooks/useResource.ts",
+        "existed":  true
+    },
+    {
+        "path":  "src/notifications.css",
+        "existed":  false
+    },
+    {
+        "path":  "src/pages/AccommodationPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/pages/AccountPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/pages/AuthPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/pages/BookingDetailsPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/pages/BookingReviewPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/pages/RoomSelectionPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/pages/StaffMediaPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/pages/StaffPaymentsPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/pages/StaffReservationsPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/pages/StaffReviewsPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/pages/StaffRoomsPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/pages/StaffSettingsPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/pages/StaffSetupPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/pages/StaffUsersPage.tsx",
+        "existed":  true
+    },
+    {
+        "path":  "src/utils/notifications.ts",
+        "existed":  false
+    },
+    {
+        "path":  "package.json",
+        "existed":  true
+    },
+    {
+        "path":  "package-lock.json",
+        "existed":  true
+    }
+]

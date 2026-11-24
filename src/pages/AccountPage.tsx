@@ -1,3 +1,4 @@
+import { useNoticeState } from '../hooks/useNoticeState';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthProvider';
@@ -9,7 +10,7 @@ import { PageTitle, Loading, Alert, Empty, Status, Dialog } from '../components/
 import { dateLabel, money, errorMessage } from '../utils/format';
 export function AccountPage() {
   const { session, refreshProfile } = useAuth(); const bookings = useResource(ReservationService.getMine); const reviews = useResource(ReviewService.getMine);
-  const [tab, setTab] = useState('upcoming'); const [name, setName] = useState(session?.user.name ?? ''); const [phone, setPhone] = useState(session?.user.phone ?? ''); const [error, setError] = useState(''); const [success, setSuccess] = useState(''); const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState('upcoming'); const [name, setName] = useState(session?.user.name ?? ''); const [phone, setPhone] = useState(session?.user.phone ?? ''); const [error, setError] = useNoticeState('error'); const [success, setSuccess] = useNoticeState('success'); const [busy, setBusy] = useState(false);
   const [reviewId, setReviewId] = useState(''); const [rating, setRating] = useState(5); const [title, setTitle] = useState(''); const [comment, setComment] = useState('');
   const filtered = bookings.data?.filter(b => tab === 'history' ? ['completed', 'cancelled'].includes(b.status) : ['confirmed', 'checked-in'].includes(b.status));
   async function saveProfile(e: React.FormEvent) { e.preventDefault(); setBusy(true); setError(''); setSuccess(''); try { await CustomerService.updateProfile(name, phone); refreshProfile(); setSuccess('Your profile has been updated.'); } catch (e) { setError(errorMessage(e)); } finally { setBusy(false); } }

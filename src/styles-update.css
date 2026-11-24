@@ -77,3 +77,8 @@
   color: rgb(var(--muted));
 }
 /* HOME_ROOM_CAROUSEL_END */
+
+/* Kitchen label spacing */
+.room-card-body .kitchen-highlight {
+    margin-bottom: 12px;
+}

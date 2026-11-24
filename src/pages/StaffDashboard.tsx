@@ -106,12 +106,7 @@ export function StaffDashboard() {
               </div>
             )}
           </section>
-          <div className="panel inline-note">
-            This dashboard lists website bookings created through the integrated
-            flow. Older staff-created reservations remain accessible through the
-            existing reservation APIs. Refunds, service charges and complex
-            invoice adjustments remain in the accounting APIs.
-          </div>
+          
         </>
       )}
     </>

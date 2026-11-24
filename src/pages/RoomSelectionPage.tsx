@@ -1,3 +1,4 @@
+import { useNoticeState } from '../hooks/useNoticeState';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBooking } from '../context/BookingProvider';
@@ -10,7 +11,7 @@ import { errorMessage } from '../utils/format';
 export function RoomSelectionPage(){
   const {draft,setDraft}=useBooking();const navigate=useNavigate();const inventory=useResource(RoomService.getAll);
   const availability=useResource(useCallback(()=>ReservationService.availability(draft),[draft]));
-  const [assigned,setAssigned]=useState<(number|null)[]>(()=>draft.allocations.map((_,i)=>draft.selectedRoomIds[i]??null));const [active,setActive]=useState(0);const [error,setError]=useState('');const [busy,setBusy]=useState(false);
+  const [assigned,setAssigned]=useState<(number|null)[]>(()=>draft.allocations.map((_,i)=>draft.selectedRoomIds[i]??null));const [active,setActive]=useState(0);const [error, setError] = useNoticeState('error');const [busy,setBusy]=useState(false);
   const free=new Set(availability.data?.rooms.map(r=>r.id));
   function tile(number:number){const room=inventory.data?.find(r=>Number(r.number)===number);if(!room)return <div className="room-tile missing" key={number}><b>{String(number).padStart(2,'0')}</b><small>Not configured</small></div>;const allocationIndex=assigned.indexOf(room.id);const selected=allocationIndex>=0;const status=room.status==='servicing'?'servicing':!free.has(room.id)?'booked':selected?'selected':'available';return <button type="button" key={number} className={`room-tile ${status}`} disabled={!free.has(room.id)||busy} aria-label={`Room ${number}, ${room.location}, ${status}`} aria-pressed={selected} onClick={()=>{setError('');if(selected){setAssigned(assigned.map(id=>id===room.id?null:id));setActive(allocationIndex);return;}const target = draft.allocations[active]?.category===room.category && assigned[active]===null ? active : draft.allocations.findIndex((a,i)=>a.category===room.category&&assigned[i]===null);if(target<0){setError(roomSelectionLimitMessage(room.category, draft.allocations, assigned));return;}const next=assigned.map((id,i)=>i===target?room.id:id);setAssigned(next);const nextEmpty=next.findIndex(id=>id===null);if(nextEmpty>=0)setActive(nextEmpty);}}><span className="bed-mark" aria-hidden="true">▰</span><b>{String(number).padStart(2,'0')}</b><small>{selected?`Your Room ${allocationIndex+1}`:status}</small></button>;}
   async function proceed(skip:boolean){setBusy(true);setError('');const updated={...draft,selectRooms:!skip,selectedRoomIds:skip?[]:assigned.filter((id):id is number=>id!==null)};try{await ReservationService.quote(updated);setDraft(updated);navigate('/booking/review');}catch(e){setError(errorMessage(e));}finally{setBusy(false);}}
